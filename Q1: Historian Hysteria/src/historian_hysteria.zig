@@ -10,17 +10,20 @@ pub fn main() !void
 
 pub fn readfile() []u8
 {
-    var file = try std.fs.cwd().openFile("input.txt", .{});
+    const alloc = std.heap.page_allocator;
+    var file = try std.fs.cwd().openFile("input.txt", .{ .read = true});
     defer file.close();
 
-    var buf_reader = std.io.bufferedReader(file.reader());
-    var in_stream = buf_reader.reader();
+    var buffer: [2048]u8 = undefined;
+    const content = try file.reader().readAllAlloc(alloc, buffer.len);
+    defer alloc.free();
 
-    var counter : u32 = 0;
-    var buf: [1024]u8 = undefined;
-    while (try in_stream.readUntilDelimiterOfEof(&buf, '\n')) |line|
-    {
-            counter += 1; // zig has no interger iteration operator
-                          
-    }
+    var tokenize = std.mem.tokenize(u8, content, " \n");
+
+    var buf_reader = std.io.bufferedReader(file.reader());
+    
 }
+
+pub fn extract_nums()
+
+
